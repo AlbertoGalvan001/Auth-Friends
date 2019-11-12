@@ -1,5 +1,7 @@
 import * as actions from '../actions';
 
+
+
 const initialState = {
     friends: [],
     isFetching: false,
