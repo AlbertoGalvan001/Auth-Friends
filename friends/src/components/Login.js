@@ -1,37 +1,58 @@
 import React, { useState } from 'react';
-import { axiosWithAuth } from '../utils/axiosWithAuth';
+import api from '../helpers/api';
 
-export default function Login(props) {
+const Login = (props) => {
 
-    const [credentials, setCredentials] = useState({
+    const [error, setError] = useState();
+    const [data, setData] = useState({
         username: '',
         password: ''
     });
 
     const handleChange = (e) => {
-        setCredentials({ ...credentials, [e.target.name]: e.target.value })
+        setData({
+            ...data,
+            [e.target.name]: e.target.value,
+        })
     }
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        axiosWithAuth()
-            .post('/api/login', credentials)
+        api()
+            .post('api/login', data)
             .then(response => {
                 console.log(response);
-                localStorage.setItem('token', response.data.payload);
+                localStorage.setItem('token', response.data.payload)
                 props.history.push('/friends');
+
             })
-            .catch(error => {
+            .catch(err => {
                 console.log(error);
+                setError(err.response.data.message)
             })
     }
+
+    return (
+        <div className='login'>
+            <form onSubmit={handleSubmit} >
+                {error && <div className='error'>{error}</div>}
+                <input
+                    type='text'
+                    name='username'
+                    placeholder='Enter Username'
+                    value={data.username}
+                    onChange={handleChange}
+                />
+                <input
+                    type='password'
+                    name='password'
+                    placeholder='Enter Password'
+                    value={data.password}
+                    onChange={handleChange}
+                />
+                <button type='submit'>Log In</button>
+            </form>
+        </div>
+    )
 }
-return (
-    <div className='login'>
-        <form className='login-form' onSubmit={handleSubmit}>
-            <input type='text' name='username' placeholder='Enter Username' onChange={handleChange} value={credentials.username} />
-            <input type='text' name='password' placeholder='Enter Password' onChange={handleChange} value={credentials.password} />
-            <button type='submit'>Log In</button>
-        </form>
-    </div>
-)
+export default Login;
